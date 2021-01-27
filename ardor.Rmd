@@ -1,0 +1,104 @@
+---
+title: "ardor"
+author: "Anis Mansouri"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Packages:
+library(minet)
+library(viper)
+library(vsn)
+library(infotheo)
+library(igraph)
+```
+
+# Loading the data
+
+```{r}
+# Raw data:
+raw_data= read.table("GSE119931_PANC1.FOXA2KO.genes.counts.txt", header = TRUE)
+
+# Extract the counts data and renames its rows:
+raw_counts=raw_data[,c(7:12)]
+rownames(raw_counts)= raw_data$Geneid
+```
+
+# Data cleaning
+
+```{r}
+# Remove genes with 0 expression level:
+raw_counts= raw_counts[rowSums(raw_counts) > 0,]
+```
+
+# Data normalization
+
+```{r}
+vsn_parameters=vsnMatrix(as.matrix(raw_counts))
+normalized_counts = as.data.frame(vsn::predict(vsn_parameters, as.matrix(raw_counts)))
+```
+
+# Creation of a transposed counts data set
+
+```{r}
+# build.mim() resuires a transposed data set (samples in rows and genes in columns):
+normalized_counts_transposed= as.data.frame(t(as.matrix(normalized_counts)))
+```
+
+# Data discretization (required when a discrete entropy estimator is used)
+
+```{r}
+discretized_counts=discretize(normalized_counts_transposed, nbins = 10)
+rownames(discretized_counts)=rownames(normalized_counts_transposed)
+```
+
+# Building the mutual information matrices (MIM)
+
+```{r}
+# Mutual Information Matrix for continuous counts:
+mim_continuous=build.mim(normalized_counts_transposed)
+
+# Mutual Information Matrix for discrete counts:
+mim_doscrete=build.mim(discretized_counts, estimator = "mi.empirical")  
+```
+
+# Network inference by ARACNE
+
+```{r}
+# Infer the network using the continuous counts:
+network_1= aracne(mim_continuous)
+network_1[is.na(network_1)]=0
+
+# Infer the network using the discrete counts:
+network_2= aracne(mim_doscrete)
+network_2[is.na(network_2)]=0
+```
+
+# Creation of the adjacency file (3 columns: tf, target, weight)
+
+```{r}
+# Get the significant gene-gene interactions:
+pairwise_interactions_1=graph.adjacency(network_1, mode = 'upper', weighted = TRUE)
+pairwise_interactions_2=graph.adjacency(network_2, mode = 'upper', weighted = TRUE)
+
+# Write the adjacency files:
+write.table(get.data.frame(pairwise_interactions_1), "adjacency_1.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(get.data.frame(pairwise_interactions_2), "adjacency_2.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+```
+
+# Getting the regulons from the inferred networks
+
+```{r}
+# Regulons from networks built using continuous counts:
+regulons_1 = aracne2regulon(afile = "adjacency_1.txt", eset = as.matrix(normalized_counts), format = "3col", verbose = FALSE)
+
+# Regulons from networks built using discrete counts:
+regulons_2 = aracne2regulon(afile = "adjacency_2.txt", eset = as.matrix(discretized_counts), format = "3col", verbose = FALSE)
+```
+
