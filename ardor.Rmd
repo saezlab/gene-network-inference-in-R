@@ -8,6 +8,12 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+path_to_wd <- '/Users/Aurelien/Dropbox/network-inference-by-aracne-in-R/'
+
+knitr::opts_knit$set(root.dir = path_to_wd)
+setwd(path_to_wd)
+getwd()
 ```
 
 ```{r}
@@ -17,6 +23,9 @@ library(viper)
 library(vsn)
 library(infotheo)
 library(igraph)
+
+library(ggplot2)
+library(reshape2)
 ```
 
 # Loading the data
@@ -36,6 +45,20 @@ rownames(raw_counts)= raw_data$Geneid
 # Remove genes with 0 expression level:
 raw_counts= raw_counts[rowSums(raw_counts) > 0,]
 ```
+
+```{r}
+# Check data distribution and filter out low counts (noise)
+raw_counts_long <- melt(log2(raw_counts))
+
+ggplot(raw_counts_long, aes(x = variable, y = value, group = variable)) + geom_violin() 
+
+raw_counts[log2(raw_counts) < 5] <- NA
+
+raw_counts <- raw_counts[rowSums(is.na(raw_counts)) < dim(raw_counts)[2],]
+
+raw_counts <- raw_counts[complete.cases(raw_counts),] #build.min cannot handle NA values
+```
+
 
 # Data normalization
 
@@ -75,9 +98,13 @@ mim_doscrete=build.mim(discretized_counts, estimator = "mi.empirical")
 network_1= aracne(mim_continuous)
 network_1[is.na(network_1)]=0
 
+plot(hist(network_1, breaks = 1000))
+
 # Infer the network using the discrete counts:
 network_2= aracne(mim_doscrete)
 network_2[is.na(network_2)]=0
+
+# save.image(file = "network_infered.RData")
 ```
 
 # Creation of the adjacency file (3 columns: tf, target, weight)
