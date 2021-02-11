@@ -22,8 +22,9 @@ rownames(counts_set)=counts_set$X
 counts_set$X=NULL
 
 # Infer the regulons:
-aracne_reg=aracne2regulon("aracne_adj.txt", eset = as.matrix(counts_set), format = "3col") # The Mode of Regulation (MoR) between each gene pair of the adjacency file
-# will be equal to the Spearman correlation coefficient between these genes. The likelihood of the interaction will be equal to: MI(gene pair)/max(MI).
+aracne_reg=aracne2regulon("aracne_adj.txt", eset = as.matrix(counts_set), format = "3col") # The Mode of Regulation (MoR) between each gene pair 
+# of the adjacency file will be equal to the Spearman correlation coefficient between these genes. 
+# The likelihood of the interaction will be equal to: MI(gene pair)/max(MI).
 
 # Convert the regulon object into a dataframe:
 regulons_df=as.data.frame(reg2tibble(aracne_reg))
