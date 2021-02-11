@@ -115,17 +115,17 @@ pairwise_interactions_1=graph.adjacency(network_1, mode = 'upper', weighted = TR
 pairwise_interactions_2=graph.adjacency(network_2, mode = 'upper', weighted = TRUE)
 
 # Write the adjacency files:
-write.table(get.data.frame(pairwise_interactions_1), "adjacency_1.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-write.table(get.data.frame(pairwise_interactions_2), "adjacency_2.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(get.data.frame(pairwise_interactions_1), "aracne_adj.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(get.data.frame(pairwise_interactions_2), "aracne_adj_disc.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 ```
 
 # Getting the regulons from the inferred networks
 
 ```{r}
 # Regulons from networks built using continuous counts:
-regulons_1 = aracne2regulon(afile = "adjacency_1.txt", eset = as.matrix(normalized_counts), format = "3col", verbose = FALSE)
+regulons_1 = aracne2regulon(afile = "aracne_adj.txt", eset = as.matrix(normalized_counts), format = "3col", verbose = FALSE)
 
 # Regulons from networks built using discrete counts:
-regulons_2 = aracne2regulon(afile = "adjacency_2.txt", eset = as.matrix(discretized_counts), format = "3col", verbose = FALSE)
+regulons_2 = aracne2regulon(afile = "aracne_adj_disc.txt", eset = as.matrix(discretized_counts), format = "3col", verbose = FALSE)
 ```
 
