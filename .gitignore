@@ -1,3 +1,3 @@
 *.RData
-adjacency_1.txt
-adjacency_2.txt
+aracne_adj.txt
+aracne_adj_disc.txt
