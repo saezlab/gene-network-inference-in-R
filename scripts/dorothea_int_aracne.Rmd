@@ -3,7 +3,7 @@
 ```{r}
 library(viper)
 library(dorothea)
-library(org.Hs.eg.db)
+library(Homo.sapiens)
 library(stringr)
 library(binilib)
 ```
@@ -34,7 +34,7 @@ regulons_df=as.data.frame(reg2tibble(aracne_reg))
 
 ```{r}
 # Create the conversion function::
-ensembl_into_symbol=function(x) {mapIds(org.Hs.eg.db,x, "SYMBOL", "ENSEMBL", multiVals = "first")}
+ensembl_into_symbol=function(x) {mapIds(Homo.sapiens,x, "SYMBOL", "ENSEMBL", multiVals = "first")}
 
 # Remove the .version from the IDs:
 regulons_df[,1:2]=str_replace(c(regulons_df$source, regulons_df$target), pattern = ".[0-9]+$", replacement = "")
