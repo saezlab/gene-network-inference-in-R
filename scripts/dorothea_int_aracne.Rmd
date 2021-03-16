@@ -58,14 +58,18 @@ check.match= function(dataframe1, columns1, dataframe2, columns2) {
   df2_interactions = paste(dataframe2[[columns2[1]]], dataframe2[[columns2[2]]])
   df2_rev_interactions = paste(dataframe2[[columns2[2]]], dataframe2[[columns2[1]]])
   
-  # Detect matching pairs regardless their order:
-  match_direction1=match(df1_interactions, df2_interactions)
-  match_direction2=match(df1_interactions, df2_rev_interactions) 
+  match_direction1=match(df1_interactions, df2_interactions,nomatch = 0)
+  to_skip=which(match_direction1 !=0)
+  match_direction2=match(df1_interactions[-c(to_skip)], df2_rev_interactions, nomatch = 0)
 
-  matches=c(match_direction1,match_direction2)
-  matches=matches[!is.na(matches)]
-  cat(length(matches),"matching rows","\n","The indices correspond to row indices of", substitute(dataframe2),"\n")
-  return(matches)
+  match_direction1[which(match_direction1==0)]=match_direction2
+  match_df1=which(match_direction1!=0)
+  match_df2=match_direction1[which(match_direction1!=0)]
+ 
+  cat(length(match_df1),"matching rows","\n","$df1_rows: matching rows from", 
+  substitute(dataframe1),"\n", "$df2_rows: matching rows from", substitute(dataframe2),"\n")
+  
+  return(list("df1_rows"= match_df1, "df2_rows"=match_df2))
 }
 ```
 ## Extraction of matching interactions between Dorothea and ARACNE regulons
