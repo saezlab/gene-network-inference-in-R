@@ -13,6 +13,7 @@ library(viper)
 library(vsn)
 library(infotheo)
 library(igraph)
+library(Homo.sapiens)
 
 library(ggplot2)
 library(reshape2)
@@ -101,8 +102,8 @@ network_2[is.na(network_2)]=0
 
 ```{r}
 # Get the significant gene-gene interactions:
-pairwise_interactions_1=graph.adjacency(network_1, mode = 'upper', weighted = TRUE)
-pairwise_interactions_2=graph.adjacency(network_2, mode = 'upper', weighted = TRUE)
+pairwise_interactions_1=graph.adjacency(network_1, mode = 'upper', weighted = TRUE,diag=FALSE)
+pairwise_interactions_2=graph.adjacency(network_2, mode = 'upper', weighted = TRUE,diag=FALSE)
 
 # Write the adjacency files:
 write.table(get.data.frame(pairwise_interactions_1), "aracne_adj.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
