@@ -1,5 +1,3 @@
-# network-inference-by-aracne-in-R
-
 ## Overview
 
 
